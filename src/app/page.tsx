@@ -1,13 +1,28 @@
 import Image from "next/image";
 import styles from "./page.module.css";
+import prisma from "../../lib/prisma";
+import Post from "../../components/Post";
 
 export default async function HomePage() {
-	const fetchedResponse = await fetch("http://localhost:3000/api/posts", {
-		// next: { revalidate: 10 },
-		cache: "no-store",
-	});
-	const data = await fetchedResponse.json();
-	console.log(data);
+    const posts = await prisma.post.findMany(
+        {
+            where: {
+                published: true
+            },
+            include: {
+                author: true
+            }
+        }
+    );
 
-	return <div> Home </div>;
+    console.log(posts);
+
+	return (
+        <main>
+            <h1>Latest Posts</h1>
+            {posts.map((post) => (
+                <Post key={post.id} post={post} />
+            ))}
+        </main>
+    );
 }
