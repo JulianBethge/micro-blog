@@ -3,7 +3,6 @@ import prisma from "../../../../lib/prisma";
 
 // GET /api
 export async function GET(request: Request) {
-    // console.log("GETTER");
     const posts = await prisma.post.findMany(
         {
             where: {
