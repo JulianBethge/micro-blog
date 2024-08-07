@@ -1,6 +1,9 @@
+"use client";
+
 import { Post, User } from "@prisma/client";
 import Markdown from "markdown-to-jsx";
 import styles from "./PostDetails.module.css";
+import { useRouter } from "next/navigation";
 
 type Props = Post & {
 	author: User | null;
@@ -12,6 +15,24 @@ export default function PostDetails({
 	title,
 	content,
 }: Props) {
+	const router = useRouter();
+
+	async function publishPost(postId: number) {
+		await fetch(`http://localhost:3000/api/posts/${postId}`, {
+			method: "PUT",
+		});
+		router.refresh();
+		router.push(`/`);
+	}
+
+	async function deletePost() {
+		await fetch(`http://localhost:3000/api/posts/${id}`, {
+			method: "DELETE",
+		});
+		router.refresh();
+		router.push("/");
+	}
+
 	return (
 		<main>
 			<h1>{published ? title : `${title} (Draft)`}</h1>
@@ -19,8 +40,17 @@ export default function PostDetails({
 			<section className={styles.section}>
 				<Markdown>{content || ""}</Markdown>
 			</section>
-			{!published && <button className={styles.button}>Publish</button>}
-            <button className={styles.button}>Delete</button>
+			{!published && (
+				<button
+					className={styles.button}
+					onClick={() => publishPost(id)}
+				>
+					Publish
+				</button>
+			)}
+			<button className={styles.button} onClick={() => deletePost()}>
+				Delete
+			</button>
 			<p>{id}</p>
 		</main>
 	);
